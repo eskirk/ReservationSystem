@@ -16,23 +16,43 @@ import java.time.LocalDate;
 
  pre-compilation stuff:
  export CLASSPATH=$CLASSPATH:mysql-connector-java-5.1.45-bin.jar:.
- export APP_JDBC_URL=jdbc:mysql://csc365winter2018.webredirect.org/alam38?autoReconnect=true
- export APP_JDBC_USER=<USERNAME>
- export APP_JDBC_PW=<PASSWORD>
+ export APP_JDBC_URL=<URL>
+ export APP_JDBC_USER=<USER>
+ export APP_JDBC_PW=<PASS>
  */
 
 public class InnReservations {
-   public static void main(String[] args) throws SQLException {
-      establishConnection();
+   public static void main(String[] args) throws SQLException{
+      Connection dbConnection = establishConnection();
+
+      if (dbConnection != null) {
+         System.out.println("Database connection acquired - processing query");
+         // follow through with other query related shenanigans  
+         
+      }
+      else 
+         System.out.println("Database connection cannot be acquired - exiting");
    }
 
-   public static void establishConnection() throws SQLException {
+   public static Connection establishConnection() throws SQLException {
       String url = System.getenv("APP_JDBC_URL");
       String user = System.getenv("APP_JDBC_USER");
       String pass = System.getenv("APP_JDBC_PW");
+      Connection conn = null;
 
-      try (Connection conn = DriverManager.getConnection(url, user, pass)) {
+      try (Connection connection = DriverManager.getConnection(url, user, pass)) {
          System.out.println("Established connection");
+         conn = connection;
       }
+      catch (SQLException e) {
+         System.out.println("An exception occured while establishing a connection");
+         System.out.println(e);
+      }
+      return conn;
+   }
+
+   // Executes the given query using the given database connection
+   public static executeQuery(String query, Connection conn) {
+
    }
 }
