@@ -203,7 +203,7 @@ public class InnReservations {
       System.out.println("The Rooms and Rates are");
    }
 
-   public static bool todayOrLater(str date) {
+   public static boolean todayOrLater(String date) {
       return true;
    }
 
