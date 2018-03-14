@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.LinkedHashMap;
 import java.time.LocalDate;
@@ -24,77 +26,70 @@ import java.time.LocalDate;
  */
 
 public class InnReservations {
-   public static void main(String[] args) throws SQLException{
-      Connection dbConnection = establishConnection();
-
-      if (dbConnection != null) {
-         System.out.println("Database connection acquired - processing query");
-         // follow through with other query related shenanigans  
-         
-      }
-      else 
-         System.out.println("Database connection cannot be acquired - exiting");
-
-      mainPrompt();
-
+   public static void main(String[] args) throws SQLException {
+      Connection conn = startProgram();
+      executeQuery(conn);
    }
 
-   public static Connection establishConnection() throws SQLException {
+   /*
+      Acquires and returns a connection based on our environment variables
+   */
+   public static Connection startProgram() throws SQLException {
       String url = System.getenv("APP_JDBC_URL");
       String user = System.getenv("APP_JDBC_USER");
       String pass = System.getenv("APP_JDBC_PW");
-      Connection conn = null;
 
-      Connection connection = DriverManager.getConnection(url, user, pass); 
-      return conn;
+      Connection connection = DriverManager.getConnection(url, user, pass);
+      System.out.println("Database connection acquired - processing query");
+      return connection;
    }
 
-   // Executes the given query using the given database connection
-   //public static executeQuery(String query, Connection conn) {
+   /*
+      Executes a query and returns a List<String[]> representing the result of
+      the query
+   */
+   public static List<String[]> executeQuery(Connection connection) throws SQLException {
+      String query = "SELECT Room, COUNT(Room) / 180 FROM lab6_reservations WHERE Checkout >= (CURDATE() - INTERVAL 180 DAY) GROUP BY Room ORDER BY COUNT(Room) DESC";
+      Statement stmt = connection.createStatement();
+      ResultSet res = stmt.executeQuery(query);
 
-   //}
-
-   public static void mainPrompt() {
-
-      System.out.println("Welcome to our database software.\n");
-      System.out.println("R1: Rooms and Rates. The system will output a list of rooms sorted by popularity (highest to lowest)\n");
-      System.out.println("R2: Reservations. Select this option to book a reservation\n");
-      System.out.println("R3: Revenue. a month-by-month overview of revenue for an entire year.\n");
-      System.out.println("D: Detailed Reservation Information. Presents a search prompt or form that allows a user to enter any combination"); 
-      System.out.println("                                  of the fields listed below (a blank entry should indicate 'Any'). For all fields except dates, partial values"); 
-      System.out.println("                                  using SQL LIKE wildcards are permitted(for example: GL% allowed as a last name search value)\n");
-      System.out.println("Q: Quit the program.");
-
-      while (true) {
-
-         System.out.print("Input Command : ");
-         String input = System.console().readLine();
-
-         if ("Q".equals(input.toUpperCase())) {
-            System.out.println("Exit!");
-            System.exit(0);
+      // print out the columns
+      try {
+         while (res.next()) {
+            return resultToArray(res);
          }
+      } catch (SQLException e) {
+         System.out.println("An exception occured");
+         System.out.println(e);
+      }
+      return null;
+   }
 
-         if ("R1".equals(input.toUpperCase())) {
-            roomsAndRates();
-         }
-         if ("R2".equals(input.toUpperCase())) {
-            reservations();
-         }
-         if ("R3".equals(input.toUpperCase())) {
-            System.out.println("Revenue");
-         }
-         if ("D".equals(input.toUpperCase())) {
-            System.out.println("Detailed Reservation Information");
-         }
+   /*
+      Returns a List<String[]> representing the query results
+   */
+   public static List<String[]> resultToArray(ResultSet result) throws SQLException {
+      int cols = result.getMetaData().getColumnCount();
+      List<String[]> table = new ArrayList<>();
 
-         System.out.println("Invalid command: " + input);
+      do {
+         String[] row = new String[cols];
+         for (int col = 1; col <= cols; col++) {
+            Object obj = result.getObject(col);
+            row[col - 1] = (obj == null) ? null : obj.toString();
+         }
+         table.add(row);
+      } while(result.next());
+
+      // print result
+      for (String[] row : table) {
+         for (String s : row) {
+            System.out.print(" " + s);
+         }
+         System.out.println();
       }
 
-   }
-
-   public static void roomsAndRates() {
-      System.out.println("The Rooms and Rates are");
+      return table;
    }
 
    public static void reservations() {

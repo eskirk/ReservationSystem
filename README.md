@@ -6,7 +6,7 @@
    When this option is selected, the system shall output a list of rooms to the
 user sorted by popularity (highest to lowest, see below for definition of ”popularity”) Include all
 information from the rooms table, as well as the following:
-   * room popularity
+   * room popularity score: number of days the room has been occupied during the previous 180 days divided by 180 (round to two decimal places)
    * next available check in
    * length of most recent stay
 
