@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.LinkedHashMap;
 import java.time.LocalDate;
+import java.util.*;
+import java.time.LocalDate;
 
 /**
  use this command when running:  
@@ -27,6 +29,7 @@ public class InnReservations {
    public static void main(String[] args) throws SQLException {
       Connection conn = startProgram();
       executeQuery(conn);
+      mainPrompt();
    }
 
    /*
@@ -89,4 +92,247 @@ public class InnReservations {
 
       return table;
    }
+
+   public static void reservations() {
+      System.out.print("First Name : ");
+      String first = System.console().readLine();
+
+      while (true) {
+         if (first.matches("[a-zA-Z]+")) {
+            break;
+         }
+         System.out.println("Only letters are allowed");
+         System.out.print("First Name : ");
+         first = System.console().readLine();
+      }
+
+      System.out.print("Last Name : ");
+      String last = System.console().readLine();
+
+      while (true) {
+         if (last.matches("[a-zA-Z]+")) {
+            break;
+         }
+         System.out.println("Only letters are allowed");
+         System.out.print("Last Name : ");
+         last = System.console().readLine();
+      }
+
+      System.out.print("Room Code ('AOB', 'CAS', 'FNA', 'HBB', 'IBD', 'IBS', 'MWC', 'RND', 'RTE', 'TAA', or 'Any' if no preference) : ");
+      String code = System.console().readLine();
+      String[] roomCodeArray = new String[] { "AOB", "CAS", "FNA", "HBB", "IBD", "IBS", "MWC", "RND", "RTE", "TAA"};
+      Set<String> roomCodeSet = new HashSet<>(Arrays.asList(roomCodeArray));
+
+      while (true) {//add a real check to see if the code actually exists in the database
+         if (roomCodeSet.contains(code.toUpperCase()) || "ANY".equals(code.toUpperCase())) {
+            break;
+         }
+         System.out.println("Invalid Input");
+         System.out.print("Room Code ('AOB', 'CAS', 'FNA', 'HBB', 'IBD', 'IBS', 'MWC', 'RND', 'RTE', 'TAA', or 'Any' if no preference) : ");
+         code = System.console().readLine();
+      }
+
+      System.out.print("Bed Type ('Twin', 'Queen', 'King', 'Any' if no preference) : ");
+      String bedType = System.console().readLine();
+
+      while (true) {
+         if ("TWIN".equals(bedType.toUpperCase()) || "QUEEN".equals(bedType.toUpperCase()) || "KING".equals(bedType.toUpperCase()) || "ANY".equals(bedType.toUpperCase())) {
+            break;
+         }
+         System.out.print("Bed Type ('Twin', 'Queen', 'King', 'Any' if no preference) : ");
+         bedType = System.console().readLine();
+      }
+
+      //LocalDate today = LocalDate.now();
+      //System.out.println(today);
+
+      System.out.print("Beginning Date of Stay (year-month-day): ");
+      String begin = System.console().readLine();
+
+      while (true) {
+         if (begin.matches("(\\d\\d\\d\\d-\\d\\d-\\d\\d)")) {
+            break;
+         }
+         System.out.print("Beginning Date of Stay (year-month-day): ");
+         begin = System.console().readLine();
+      }
+
+      System.out.print("Ending Date of Stay (year-month-day): ");
+      String end = System.console().readLine();
+
+      while (true) {
+         if (end.matches("(\\d\\d\\d\\d-\\d\\d-\\d\\d)")) {
+            break;
+         }
+         System.out.print("Ending Date of Stay (year-month-day): ");
+         end = System.console().readLine();
+      }
+
+      System.out.print("Number of Children : ");
+      String chilluns = System.console().readLine();
+
+      while (true) {
+         if (chilluns.matches("[0-9]+")) {
+            int children = Integer.parseInt(chilluns);
+            break;
+         }
+         System.out.println("Invalid Input");
+         System.out.print("Number of Children : ");
+         chilluns = System.console().readLine();
+      }
+
+      System.out.print("Number of Adults : ");
+      String bigguns = System.console().readLine();
+
+      while (true) {
+         if (bigguns.matches("[0-9]+")) {
+            int adults = Integer.parseInt(bigguns);
+            break;
+         }
+         System.out.println("Invalid Input");
+         System.out.print("Number of Adults : ");
+         bigguns = System.console().readLine();
+      }
+
+   }
+
+   public static void revenue() {
+      System.out.println("The Revenue is");
+   }
+
+   public static void detailedReservationInformation() {
+      System.out.println("Input the information to find reservations. a wildcard '%' may be used for any none date field. An empty response will be considered 'ANY'");
+      System.out.print("First Name : ");
+      String first = System.console().readLine();
+
+      while (true) {
+         if (first.isEmpty()){
+             first = "ANY";
+         }
+         if (first.matches("[a-zA-Z%]+") || first == "ANY") {
+            break;
+         }
+         System.out.println("Only letters are allowed");
+         System.out.print("First Name : ");
+         first = System.console().readLine();
+      }
+      System.out.print("Last Name : ");
+      String last = System.console().readLine();
+
+      while (true) {
+         if (last.isEmpty()){
+             last = "ANY";
+         }
+         if (last.matches("[a-zA-Z%]+") || last == "ANY") {
+            break;
+         }
+         System.out.println("Only letters are allowed");
+         System.out.print("Last Name : ");
+         last = System.console().readLine();
+      }
+
+      System.out.print("Beginning Date of Stay (year-month-day): ");
+      String begin = System.console().readLine();
+
+      while (true) {
+         if (begin.isEmpty()){
+             begin = "ANY";
+         }
+         if (begin.matches("(\\d\\d\\d\\d-\\d\\d-\\d\\d)") || begin == "ANY") {
+            break;
+         }
+         System.out.print("Beginning Date of Stay (year-month-day): ");
+         begin = System.console().readLine();
+      }
+
+      System.out.print("Ending Date of Stay (year-month-day): ");
+      String end = System.console().readLine();
+
+      if (end.isEmpty()){
+          end = "ANY";
+      }
+      while (true) {
+         if (end.matches("(\\d\\d\\d\\d-\\d\\d-\\d\\d)") || end == "ANY") {
+            break;
+         }
+         System.out.print("Ending Date of Stay (year-month-day): ");
+         end = System.console().readLine();
+      }
+
+      System.out.print("Room Code : ");
+      String roomCode = System.console().readLine();
+
+      while (true) {
+         if (roomCode.isEmpty()){
+             roomCode = "ANY";
+         }
+         if (roomCode.matches("[a-zA-Z%]+") || roomCode == "ANY") {
+            break;
+         }
+         System.out.println("Only letters are allowed");
+         System.out.print("Room Code : ");
+         roomCode = System.console().readLine();
+      }
+
+      System.out.print("Reservation Code : ");
+      String reservationCode = System.console().readLine();
+
+      while (true) {
+         if (reservationCode.isEmpty()){
+             reservationCode = "ANY";
+         }
+         if (reservationCode.matches("[0-9%]+") || reservationCode == "ANY") {
+            break;
+         }
+         System.out.println("Invalid Input");
+         System.out.print("Reservation Code : ");
+         reservationCode = System.console().readLine();
+      }
+   }
+
+   public static void roomsAndRates() {
+      System.out.println("The Rooms and Rates are");
+   }
+
+   public static void mainPrompt() {
+
+      System.out.println("Welcome to our database software.\n");
+      System.out.println("R1: Rooms and Rates. The system will output a list of rooms sorted by popularity (highest to lowest)\n");
+      System.out.println("R2: Reservations. Select this option to book a reservation\n");
+      System.out.println("R3: Revenue. a month-by-month overview of revenue for an entire year.\n");
+      System.out.println("D: Detailed Reservation Information. Presents a search prompt or form that allows a user to enter any combination");
+      System.out.println("                                  of the fields listed below (a blank entry should indicate 'Any'). For all fields except dates, partial values");
+      System.out.println("                                  using SQL LIKE wildcards are permitted(for example: GL% allowed as a last name search value)\n");
+      System.out.println("Q: Quit the program.");
+
+      while (true) {
+
+         System.out.print("Input Command : ");
+         String input = System.console().readLine();
+
+         if ("Q".equals(input.toUpperCase())) {
+            System.out.println("Exit!");
+            System.exit(0);
+         }
+
+         if ("R1".equals(input.toUpperCase())) {
+            roomsAndRates();
+         }
+         if ("R2".equals(input.toUpperCase())) {
+            reservations();
+         }
+         if ("R3".equals(input.toUpperCase())) {
+            System.out.println("Revenue");
+         }
+         if ("D".equals(input.toUpperCase())) {
+            detailedReservationInformation();
+         }
+
+         System.out.println("Invalid command: " + input);
+      }
+
+   }
+
+
 }
+
