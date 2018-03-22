@@ -29,7 +29,7 @@ public class InnReservations {
    public static void main(String[] args) throws SQLException {
       Connection conn = startProgram();
       executeQuery(conn);
-      mainPrompt();
+      mainPrompt(conn);
    }
 
    /*
@@ -193,14 +193,13 @@ public class InnReservations {
          System.out.print("Number of Adults : ");
          bigguns = System.console().readLine();
       }
-
    }
 
    public static void revenue() {
       System.out.println("The Revenue is");
    }
 
-   public static void detailedReservationInformation() {
+   public static List<String[]> detailedReservationInformation(Connection conn) throws SQLException{
       System.out.println("Input the information to find reservations. a wildcard '%' may be used for any none date field. An empty response will be considered 'ANY'");
       System.out.print("First Name : ");
       String first = System.console().readLine();
@@ -288,24 +287,114 @@ public class InnReservations {
          System.out.print("Reservation Code : ");
          reservationCode = System.console().readLine();
       }
+
+      String query = "SELECT * FROM lab6_reservations";
+
+      if (first != "ANY" || last != "ANY" || begin != "ANY" || end != "ANY" || roomCode != "ANY" || reservationCode != "ANY") {
+         boolean prior = false;
+         query += " WHERE";
+         if (first != "ANY") {
+            if (first.indexOf('%') > 0) {
+               query += " FirstName LIKE " + "'" + first + "'";
+            }
+            else {
+               query += " FirstName = " + "'" + first + "'";
+            }
+            prior = true;
+         }
+         if (last != "ANY") {
+            if (prior) {
+                query += " AND";
+            }
+            if (last.indexOf('%') > 0) {
+               query += " LastName LIKE " + "'" + last + "'";
+            }
+            else {
+               query += " LastName = " + "'" + last + "'";
+            }
+            prior = true;
+         }
+         if (begin != "ANY") {
+            if (prior) {
+                query += " AND";
+            }
+            if (begin.indexOf('%') > 0) {
+               query += " CheckIn LIKE " + "'" + begin + "'";
+            }
+            else {
+               query += " CheckIn = " + "'" + begin + "'";
+            }
+            prior = true;
+         }
+         if (end != "ANY") {
+            if (prior) {
+                query += " AND";
+            }
+            if (end.indexOf('%') > 0) {
+               query += " Checkout LIKE " + "'" + end + "'";
+            }
+            else {
+               query += " Checkout = " + "'" + end + "'";
+            }
+            prior = true;
+         }
+         if (roomCode != "ANY") {
+            if (prior) {
+                query += " AND";
+            }
+            if (roomCode.indexOf('%') > 0) {
+               query += " Room LIKE " + "'" + roomCode + "'";
+            }
+            else {
+               query += " Room = " + "'" + roomCode + "'";
+            }
+            prior = true;
+         }
+         if (reservationCode != "ANY") {
+            if (prior) {
+                query += " AND";
+            }
+            if (reservationCode.indexOf('%') > 0) {
+               query += " CODE LIKE " + "'" + reservationCode + "'";
+            }
+            else {
+               query += " CODE = " + reservationCode;
+            }
+         }
+      }
+      Statement stmt = conn.createStatement();
+      ResultSet res = stmt.executeQuery(query);
+
+      // print out the columns
+      try {
+         System.out.println("CODE, Room, CheckIn, Checkout, Rate, LastName, FirstName, Adults, Kids");
+         while (res.next()) {
+            return resultToArray(res);
+         }
+      } catch (SQLException e) {
+         System.out.println("An exception occured");
+         System.out.println(e);
+      }
+      
+      return null;
    }
 
    public static void roomsAndRates() {
       System.out.println("The Rooms and Rates are");
    }
 
-   public static void mainPrompt() {
-
-      System.out.println("Welcome to our database software.\n");
-      System.out.println("R1: Rooms and Rates. The system will output a list of rooms sorted by popularity (highest to lowest)\n");
-      System.out.println("R2: Reservations. Select this option to book a reservation\n");
-      System.out.println("R3: Revenue. a month-by-month overview of revenue for an entire year.\n");
-      System.out.println("D: Detailed Reservation Information. Presents a search prompt or form that allows a user to enter any combination");
-      System.out.println("                                  of the fields listed below (a blank entry should indicate 'Any'). For all fields except dates, partial values");
-      System.out.println("                                  using SQL LIKE wildcards are permitted(for example: GL% allowed as a last name search value)\n");
-      System.out.println("Q: Quit the program.");
+   public static void mainPrompt(Connection conn) throws SQLException{
 
       while (true) {
+
+         System.out.println("Welcome to our database software.\n");
+         System.out.println("R1: Rooms and Rates. The system will output a list of rooms sorted by popularity (highest to lowest)\n");
+         System.out.println("R2: Reservations. Select this option to book a reservation\n");
+         System.out.println("R3: Revenue. a month-by-month overview of revenue for an entire year.\n");
+         System.out.println("D: Detailed Reservation Information. Presents a search prompt or form that allows a user to enter any combination");
+         System.out.println("                                  of the fields listed below (a blank entry should indicate 'Any'). For all fields except dates, partial values");
+         System.out.println("                                  using SQL LIKE wildcards are permitted(for example: GL% allowed as a last name search value)\n");
+         System.out.println("Q: Quit the program.");
 
          System.out.print("Input Command : ");
          String input = System.console().readLine();
@@ -325,10 +414,8 @@ public class InnReservations {
             System.out.println("Revenue");
          }
          if ("D".equals(input.toUpperCase())) {
-            detailedReservationInformation();
+            detailedReservationInformation(conn);
          }
-
-         System.out.println("Invalid command: " + input);
       }
 
    }
